@@ -6,7 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +30,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         final Spinner spinnerTypes = findViewById(R.id.spinnerType);
         final Spinner spinnerUnits = findViewById(R.id.spinnerUnit);
+        final Spinner spinnerTest = findViewById(R.id.spinnerPrueba);
+        final Button buttonPlus = findViewById(R.id.button);
+        final Button buttonMinus = findViewById(R.id.button2);
+        final TableLayout tableOptions = findViewById(R.id.tableOptions);
+
+
+        // Codigo Inutil aca
+        final TableRow preTableOption = new TableRow(MainActivity.this);
+        final TextView lol = new TextView(MainActivity.this);
+        lol.setText(R.string.app_name);
+        preTableOption.addView(lol);
+        //NO
+
 
         //Poblate of the types spinner
         poblateSpinner(spinnerTypes,arrayTypes);
@@ -36,10 +54,12 @@ public class MainActivity extends AppCompatActivity {
                 switch ((String)spinnerTypes.getSelectedItem()){
                     case "Peso":
                         poblateSpinner(spinnerUnits, arrayUnitWeights);
+                        poblateSpinner(spinnerTest,arrayUnitWeights);
                         spinnerUnits.setEnabled(true);
                         break;
                     case "Volumen":
                         poblateSpinner(spinnerUnits, arrayUnitVolumes);
+                        poblateSpinner(spinnerTest,arrayUnitVolumes);
                         spinnerUnits.setEnabled(true);
                         break;
                     default:
@@ -53,6 +73,25 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(findViewById(R.id.main_layout),"Nada seleccionado",Snackbar.LENGTH_SHORT);
             }
         });
+
+        buttonPlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"Plus button", Toast.LENGTH_LONG).show();
+                //Snackbar.make(findViewById(R.id.main_layout),"Plus seleccionado",Snackbar.LENGTH_SHORT);
+                //NO
+                tableOptions.addView(preTableOption);
+            }
+        });
+
+        buttonMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"Minus button",Toast.LENGTH_LONG).show();
+                //Snackbar.make(findViewById(R.id.main_layout),"Minus seleccionado",Snackbar.LENGTH_SHORT);
+            }
+        });
+
     }
 
     protected void poblateSpinner(Spinner spinnerToPoblate, String[] arrayToUse){
