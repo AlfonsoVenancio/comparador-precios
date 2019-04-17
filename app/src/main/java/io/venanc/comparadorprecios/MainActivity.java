@@ -1,17 +1,25 @@
 package io.venanc.comparadorprecios;
 
+import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +31,10 @@ public class MainActivity extends AppCompatActivity {
     String[] arrayUnitWeights = {"gramos", "kilogramos"};
     String[] arrayUnitVolumes = {"mililitros", "litros"};
     String[] arrayTypes = {"Peso", "Volumen", "Por unidad"};
+    private List<TableRow> rowsOptions;
+    private TableLayout tableOptions;
+    private int idSet;
+    private float screenDensity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,20 +45,18 @@ public class MainActivity extends AppCompatActivity {
         final Spinner spinnerTest = findViewById(R.id.spinnerPrueba);
         final Button buttonPlus = findViewById(R.id.button);
         final Button buttonMinus = findViewById(R.id.button2);
-        final TableLayout tableOptions = findViewById(R.id.tableOptions);
-
-
-        // Codigo Inutil aca
-        final TableRow preTableOption = new TableRow(MainActivity.this);
-        final TextView lol = new TextView(MainActivity.this);
-        lol.setText(R.string.app_name);
-        preTableOption.addView(lol);
-        //NO
-
-
+        tableOptions = findViewById(R.id.tableOptions);
+        rowsOptions  = new ArrayList<>();
+        idSet = 1;
+        screenDensity = getApplicationContext().getResources().getDisplayMetrics().density;
+        final TableRow firstRow = findViewById(R.id.firstRow);
+        final TableRow secondRow = findViewById(R.id.secondRow);
+        firstRow.setId(idSet++);
+        secondRow.setId(idSet++);
+        rowsOptions.add(firstRow);
+        rowsOptions.add(secondRow);
         //Poblate of the types spinner
         poblateSpinner(spinnerTypes,arrayTypes);
-
         //Types Spinners on selected item
         spinnerTypes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -77,18 +87,14 @@ public class MainActivity extends AppCompatActivity {
         buttonPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"Plus button", Toast.LENGTH_LONG).show();
-                //Snackbar.make(findViewById(R.id.main_layout),"Plus seleccionado",Snackbar.LENGTH_SHORT);
-                //NO
-                tableOptions.addView(preTableOption);
+                addRow();
             }
         });
 
         buttonMinus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"Minus button",Toast.LENGTH_LONG).show();
-                //Snackbar.make(findViewById(R.id.main_layout),"Minus seleccionado",Snackbar.LENGTH_SHORT);
+                eraseRow();
             }
         });
 
@@ -101,5 +107,65 @@ public class MainActivity extends AppCompatActivity {
         spinnerToPoblate.setAdapter(adapterAux);
     }
 
+    protected void addRow(){
+        TableRow rowAux = new TableRow(this);
+        rowAux.setId(idSet);
+        EditText editAux = new EditText(this);
+        Spinner spinnerAux = new Spinner(this);
+        TextView textAux =  new TextView(this);
+        EditText editAux2 = new EditText(this);
+        textAux.setText(String.valueOf(idSet++));
+
+        //Attributes of the first EditText of each row
+        editAux.setText("1");
+        editAux.setGravity(Gravity.CENTER);
+        editAux.setEms(2);
+        editAux.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        editAux.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(4)
+        });
+
+        //Attributes of the Spinner of each row
+        spinnerAux.setPadding((int)(10*screenDensity),0,0,0);
+        spinnerAux.setGravity(Gravity.CENTER);
+        //spinnerAux.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.MATCH_PARENT));
+
+        //Attributes of the TextView of each row
+        textAux.setText("$");
+        //textAux.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+        textAux.setPadding((int)(10*screenDensity),0,0,0);
+        textAux.setTextSize(15);
+        textAux.setTextColor(Color.BLACK);
+
+        //Attributes of the second EditText of each row
+        editAux2.setText("Precio");
+        editAux2.setGravity(Gravity.CENTER);
+        editAux2.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        editAux2.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(9)
+        });
+
+
+
+        rowAux.setGravity(Gravity.CENTER);
+        rowAux.addView(editAux);
+
+        rowAux.addView(spinnerAux);
+        rowAux.addView(textAux);
+        rowAux.addView(editAux2);
+
+        rowsOptions.add(rowAux);
+        tableOptions.addView(rowAux);
+    }
+
+    protected boolean eraseRow(){
+        if(rowsOptions.size() <= 2){
+            Snackbar.make(findViewById(R.id.main_layout),"Debes de tener al menos dos opciones",Toast.LENGTH_SHORT ).show();
+            return false;
+        }
+        rowsOptions.remove(rowsOptions.size()-1);
+        tableOptions.removeView(findViewById(--idSet));
+        return true;
+    }
 
 }
