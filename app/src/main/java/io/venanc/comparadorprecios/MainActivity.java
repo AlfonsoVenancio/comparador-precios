@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -47,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
         final Spinner spinnerTypes = findViewById(R.id.spinnerType);
         final Spinner firstSpinner = findViewById(R.id.firstSpinner);
         final Spinner secondSpinner = findViewById(R.id.secondSpinner);
-        final Button buttonPlus = findViewById(R.id.button);
-        final Button buttonMinus = findViewById(R.id.button2);
+        final ImageButton buttonPlus = findViewById(R.id.buttonPlus);
+        final ImageButton buttonMinus = findViewById(R.id.buttonMinus);
         //INIT OF ALL VARIABLES
         screenDensity = getApplicationContext().getResources().getDisplayMetrics().density;
         idSet = 1;

@@ -146,23 +146,41 @@
     </TableLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            >
 
-            <Button
-                android:id="@+id/button"
+            <ImageButton
+
+                android:paddingRight="35dp"
+                android:id="@+id/buttonPlus"
+                android:background="@null"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxHeight="90dp"
+                android:maxWidth="90dp"
                 android:layout_weight="1"
-                android:text="+" />
+                app:srcCompat="@drawable/add"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                />
 
-            <Button
-                android:id="@+id/button2"
+            <ImageButton
+                android:paddingLeft="35dp"
+                android:background="@null"
+                android:id="@+id/buttonMinus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxHeight="90dp"
+                android:maxWidth="90dp"
                 android:layout_weight="1"
-                android:text="-" />
+                app:srcCompat="@drawable/minus"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                />
+
         </LinearLayout>
 
 
