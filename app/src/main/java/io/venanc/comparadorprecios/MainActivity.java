@@ -20,17 +20,23 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     String[] arrayUnitWeights = {"gramos", "kilogramos", "onzas", "libras"};
     double[] arrayWeightsConvertion = {1e-3,1,0.02834952,0.4535924}; // kilograms
     String[] arrayUnitVolumes = {"mililitros", "litros", "galón USA", "galón UK"};
     double[] arrayVolumesConvertion = {1e-6,1e-3,3.7853e-3,4.5460e-3}; // m^3
+    Map<String,Double> mapWeightsConvertion;
+    Map<String,Double> mapVolumesConvertion;
+
     String[] arrayTypes = {"Peso", "Volumen", "Por unidad"};
     private List<TableRow> rowsOptions;
     private TableLayout tableOptions;
@@ -38,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private float screenDensity;
     private List<Spinner> spinnerList;
     private List<EditText> quantitiesList;
+    private List<TextView> signList;
     private List<EditText> pricesList;
     private Spinner spinnerTypes;
     @Override
@@ -47,12 +54,23 @@ public class MainActivity extends AppCompatActivity {
         //INIT OF ALL VIEWS
         final TableRow firstRow = findViewById(R.id.firstRow);
         final TableRow secondRow = findViewById(R.id.secondRow);
+        final EditText firstQuantity = findViewById(R.id.firstQuantity);
+        final EditText secondQuantity = findViewById(R.id.secondQuantity);
         final Spinner spinnerTypes = findViewById(R.id.spinnerType);
         final Spinner firstSpinner = findViewById(R.id.firstSpinner);
         final Spinner secondSpinner = findViewById(R.id.secondSpinner);
+        final TextView firstSign = findViewById(R.id.firstSign);
+        final TextView secondSign = findViewById(R.id.secondSign);
+        final EditText firstPrice = findViewById(R.id.firstPrice);
+        final EditText secondPrice = findViewById(R.id.secondPrice);
         final ImageButton buttonPlus = findViewById(R.id.buttonPlus);
         final ImageButton buttonMinus = findViewById(R.id.buttonMinus);
+        final Button compareButton = findViewById(R.id.compareButton);
         //INIT OF ALL VARIABLES
+        mapWeightsConvertion = new HashMap<String,Double>();
+        mapVolumesConvertion = new HashMap<String,Double>();
+        for(int i = 0; i<arrayUnitWeights.length; i++) mapWeightsConvertion.put(arrayUnitWeights[i],arrayWeightsConvertion[i]);
+        for(int i = 0; i<arrayUnitVolumes.length; i++) mapVolumesConvertion.put(arrayUnitVolumes[i],arrayVolumesConvertion[i]);
         screenDensity = getApplicationContext().getResources().getDisplayMetrics().density;
         idSet = 1;
         //LISTS
@@ -62,10 +80,17 @@ public class MainActivity extends AppCompatActivity {
         rowsOptions.add(firstRow);
         rowsOptions.add(secondRow);
         quantitiesList = new ArrayList<EditText>();
+        quantitiesList.add(firstQuantity);
+        quantitiesList.add(secondQuantity);
         spinnerList = new ArrayList<Spinner>();
         spinnerList.add(firstSpinner);
         spinnerList.add(secondSpinner);
+        signList = new ArrayList<TextView>();
+        signList.add(firstSign);
+        signList.add(secondSign);
         pricesList = new ArrayList<EditText>();
+        pricesList.add(firstPrice);
+        pricesList.add(secondPrice);
         tableOptions = findViewById(R.id.tableOptions);
         populateSpinner(spinnerTypes,arrayTypes);
         spinnerTypes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -110,6 +135,18 @@ public class MainActivity extends AppCompatActivity {
                 eraseRow();
             }
         });
+        compareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int rowToColor = getBestOption();
+                TableRow rowAux = findViewById(rowToColor);
+                rowAux.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                quantitiesList.get(rowToColor-1).setTextColor(Color.WHITE);
+                ((TextView) spinnerList.get(rowToColor-1).getChildAt(0)).setTextColor(Color.WHITE);
+                signList.get(rowToColor-1).setTextColor(Color.WHITE);
+                pricesList.get(rowToColor-1).setTextColor(Color.WHITE);
+            }
+        });
     }
 
     protected void populateSpinner(Spinner spinnerToPopulate, String[] arrayToUse){
@@ -145,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
         textAux.setPadding((int)(10*screenDensity),0,0,0);
         textAux.setTextSize(15);
         textAux.setTextColor(Color.BLACK);
+        signList.add(textAux);
         //Attributes of the second EditText of each row
         editPriceAux.setText("Precio");
         editPriceAux.setGravity(Gravity.CENTER);
@@ -175,4 +213,33 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    protected int getBestOption(){
+        int bestOptionIndex = -1;
+        double priceRelation;
+        double bestOption = -1;
+        Spinner spinnerAuxType = findViewById(R.id.spinnerType);
+        String selectedType = (String)(spinnerAuxType.getSelectedItem());
+        for(int i = 0; i < idSet-1; i++){
+            EditText quantityAux = quantitiesList.get(i);
+            Spinner spinnerAux = spinnerList.get(i);
+            EditText priceAux = pricesList.get(i);
+            switch (selectedType){
+                case "Peso":
+                    priceRelation = Double.parseDouble(quantityAux.getText().toString()) * mapWeightsConvertion.get(spinnerAux.getSelectedItem()) / Double.parseDouble(priceAux.getText().toString());
+                    bestOptionIndex = (priceRelation>bestOption) ? i : bestOptionIndex;
+                    bestOption = Math.max(bestOption,priceRelation);
+                    break;
+                case "Volumen":
+                    priceRelation = Double.parseDouble(quantityAux.getText().toString()) * mapVolumesConvertion.get(spinnerAux.getSelectedItem()) / Double.parseDouble(priceAux.getText().toString());
+                    bestOptionIndex = (priceRelation>bestOption) ? i : bestOptionIndex;
+                    bestOption = Math.max(bestOption,priceRelation);
+                    break;
+                default:
+                    priceRelation = 9999999;
+                    bestOptionIndex = 1;
+                    bestOption = 99999999;
+            }
+        }
+        return bestOptionIndex+1;
+    }
 }

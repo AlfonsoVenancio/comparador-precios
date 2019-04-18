@@ -66,7 +66,7 @@
                     android:padding="5dp">
 
                     <EditText
-                        android:id="@+id/editText"
+                        android:id="@+id/firstQuantity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ems="2"
@@ -83,7 +83,7 @@
                         android:paddingLeft="10dp" />
 
                     <TextView
-                        android:id="@+id/textView7"
+                        android:id="@+id/firstSign"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center"
@@ -93,7 +93,7 @@
                         android:textSize="15dp" />
 
                     <EditText
-                        android:id="@+id/editText3"
+                        android:id="@+id/firstPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:inputType="numberDecimal"
@@ -109,7 +109,7 @@
                     android:padding="5dp">
 
                     <EditText
-                        android:id="@+id/editText2"
+                        android:id="@+id/secondQuantity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ems="2"
@@ -126,7 +126,7 @@
                         android:paddingLeft="10dp" />
 
                     <TextView
-                        android:id="@+id/textView8"
+                        android:id="@+id/secondSign"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center"
@@ -136,7 +136,7 @@
                         android:textSize="15dp" />
 
                     <EditText
-                        android:id="@+id/editText4"
+                        android:id="@+id/secondPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:inputType="numberDecimal"
@@ -190,7 +190,7 @@
                 android:padding="20dp">
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/compareButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorPrimary"
