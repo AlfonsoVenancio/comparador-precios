@@ -27,8 +27,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    String[] arrayUnitWeights = {"gramos", "kilogramos"};
-    String[] arrayUnitVolumes = {"mililitros", "litros"};
+    String[] arrayUnitWeights = {"gramos", "kilogramos", "onzas", "libras"};
+    double[] arrayWeightsConvertion = {1e-3,1,0.02834952,0.4535924}; // kilograms
+    String[] arrayUnitVolumes = {"mililitros", "litros", "galón USA", "galón UK"};
+    double[] arrayVolumesConvertion = {1e-6,1e-3,3.7853e-3,4.5460e-3}; // m^3
     String[] arrayTypes = {"Peso", "Volumen", "Por unidad"};
     private List<TableRow> rowsOptions;
     private TableLayout tableOptions;
