@@ -11,6 +11,7 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -34,8 +35,9 @@ public class MainActivity extends AppCompatActivity {
     double[] arrayVolumesConversion = {1e-6,1e-3,3.7853e-3,4.5460e-3}; // m^3
     Map<String,Double> mapWeightsConversion;
     Map<String,Double> mapVolumesConversion;
+    String[] arrayTypes = {"Peso", "Volumen"};
 
-    String[] arrayTypes = {"Peso", "Volumen", "Por unidad"};
+
     private List<TableRow> rowsOptions;
     private TableLayout tableOptions;
     private int idSet;
@@ -46,7 +48,10 @@ public class MainActivity extends AppCompatActivity {
     private List<EditText> pricesList;
     private Spinner spinnerTypes;
     private List<Integer> rowsToColor;
-    private boolean haveEmpy;
+    private boolean haveEmpty;
+
+    private AlphaAnimation buttonClicAnimation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -75,11 +80,11 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i<arrayUnitVolumes.length; i++) mapVolumesConversion.put(arrayUnitVolumes[i], arrayVolumesConversion[i]);
         screenDensity = getApplicationContext().getResources().getDisplayMetrics().density;
         idSet = 0;
+        buttonClicAnimation = new AlphaAnimation(1F, 0.8F);
+        buttonClicAnimation.setDuration(30);
         //LISTS
         rowsOptions  = new ArrayList<>();
-        firstPrice.setText(String.valueOf(idSet));
         firstRow.setId(idSet++);
-        secondPrice.setText(String.valueOf(idSet));
         secondRow.setId(idSet++);
         rowsOptions.add(firstRow);
         rowsOptions.add(secondRow);
@@ -119,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
         buttonPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.startAnimation(buttonClicAnimation);
                 addRow();
                 Spinner spinnerTopopulate = spinnerList.get(spinnerList.size()-1);
                 switch ((String)spinnerTypes.getSelectedItem()){
@@ -136,12 +142,14 @@ public class MainActivity extends AppCompatActivity {
         buttonMinus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.startAnimation(buttonClicAnimation);
                 eraseRow();
             }
         });
         compareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.startAnimation(buttonClicAnimation);
                 rowsToColor = getBestOption();
                 if(rowsToColor==null){
                     Snackbar.make(findViewById(R.id.main_layout),"Debes de llenar los campos vacios",Toast.LENGTH_SHORT ).show();
@@ -160,8 +168,9 @@ public class MainActivity extends AppCompatActivity {
         cleanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.startAnimation(buttonClicAnimation);
                 rowsToColor = null;
-                haveEmpy = false;
+                haveEmpty = false;
                 for(EditText editTextAux : quantitiesList){
                     editTextAux.setText("");
                     editTextAux.setTextColor(Color.BLACK);
@@ -261,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
         List<Integer> bestOptionIndex = new ArrayList<Integer>();
         double priceRelation;
         double bestOption = -1;
-        haveEmpy = false;
+        haveEmpty = false;
         Spinner spinnerAuxType = findViewById(R.id.spinnerType);
         String selectedType = (String)(spinnerAuxType.getSelectedItem());
         for (int i = 0; i< idSet; i++){
@@ -269,19 +278,19 @@ public class MainActivity extends AppCompatActivity {
             EditText priceAux = pricesList.get(i);
             if(quantityAux.getText().toString().isEmpty()){
                 quantityAux.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
-                haveEmpy = true;
+                haveEmpty = true;
             }else{
                 quantityAux.getBackground().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
             }
             if (priceAux.getText().toString().isEmpty()){
                 priceAux.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
-                haveEmpy = true;
+                haveEmpty = true;
             }else{
                 priceAux.getBackground().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
             }
         }
 
-        if(haveEmpy){
+        if(haveEmpty){
             return null;
         }
 
