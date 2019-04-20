@@ -21,7 +21,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,11 +29,11 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     String[] arrayUnitWeights = {"gramos", "kilogramos", "onzas", "libras"};
-    double[] arrayWeightsConvertion = {1e-3,1,0.02834952,0.4535924}; // kilograms
+    double[] arrayWeightsConversion = {1e-3,1,0.02834952,0.4535924}; // kilograms
     String[] arrayUnitVolumes = {"mililitros", "litros", "galón USA", "galón UK"};
-    double[] arrayVolumesConvertion = {1e-6,1e-3,3.7853e-3,4.5460e-3}; // m^3
-    Map<String,Double> mapWeightsConvertion;
-    Map<String,Double> mapVolumesConvertion;
+    double[] arrayVolumesConversion = {1e-6,1e-3,3.7853e-3,4.5460e-3}; // m^3
+    Map<String,Double> mapWeightsConversion;
+    Map<String,Double> mapVolumesConversion;
 
     String[] arrayTypes = {"Peso", "Volumen", "Por unidad"};
     private List<TableRow> rowsOptions;
@@ -46,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private List<TextView> signList;
     private List<EditText> pricesList;
     private Spinner spinnerTypes;
-    private int rowToColor;
+    private List<Integer> rowsToColor;
+    private boolean haveEmpy;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -69,15 +69,17 @@ public class MainActivity extends AppCompatActivity {
         final Button compareButton = findViewById(R.id.compareButton);
         final Button cleanButton = findViewById(R.id.cleanButton);
         //INIT OF ALL VARIABLES
-        mapWeightsConvertion = new HashMap<String,Double>();
-        mapVolumesConvertion = new HashMap<String,Double>();
-        for(int i = 0; i<arrayUnitWeights.length; i++) mapWeightsConvertion.put(arrayUnitWeights[i],arrayWeightsConvertion[i]);
-        for(int i = 0; i<arrayUnitVolumes.length; i++) mapVolumesConvertion.put(arrayUnitVolumes[i],arrayVolumesConvertion[i]);
+        mapWeightsConversion = new HashMap<String,Double>();
+        mapVolumesConversion = new HashMap<String,Double>();
+        for(int i = 0; i<arrayUnitWeights.length; i++) mapWeightsConversion.put(arrayUnitWeights[i], arrayWeightsConversion[i]);
+        for(int i = 0; i<arrayUnitVolumes.length; i++) mapVolumesConversion.put(arrayUnitVolumes[i], arrayVolumesConversion[i]);
         screenDensity = getApplicationContext().getResources().getDisplayMetrics().density;
-        idSet = 1;
+        idSet = 0;
         //LISTS
         rowsOptions  = new ArrayList<>();
+        firstPrice.setText(String.valueOf(idSet));
         firstRow.setId(idSet++);
+        secondPrice.setText(String.valueOf(idSet));
         secondRow.setId(idSet++);
         rowsOptions.add(firstRow);
         rowsOptions.add(secondRow);
@@ -140,23 +142,26 @@ public class MainActivity extends AppCompatActivity {
         compareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                rowToColor = getBestOption();
-                if(rowToColor==-2){
+                rowsToColor = getBestOption();
+                if(rowsToColor==null){
                     Snackbar.make(findViewById(R.id.main_layout),"Debes de llenar los campos vacios",Toast.LENGTH_SHORT ).show();
                     return;
                 }
-                TableRow rowAux = findViewById(rowToColor);
-                rowAux.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                quantitiesList.get(rowToColor-1).setTextColor(Color.WHITE);
-                ((TextView) spinnerList.get(rowToColor-1).getChildAt(0)).setTextColor(Color.WHITE);
-                signList.get(rowToColor-1).setTextColor(Color.WHITE);
-                pricesList.get(rowToColor-1).setTextColor(Color.WHITE);
+                for(Integer rowToColor : rowsToColor) {
+                    TableRow rowAux = findViewById(rowToColor);
+                    rowAux.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    quantitiesList.get(rowToColor).setTextColor(Color.WHITE);
+                    ((TextView) spinnerList.get(rowToColor).getChildAt(0)).setTextColor(Color.WHITE);
+                    signList.get(rowToColor).setTextColor(Color.WHITE);
+                    pricesList.get(rowToColor).setTextColor(Color.WHITE);
+                }
             }
         });
         cleanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                rowToColor = -2;
+                rowsToColor = null;
+                haveEmpy = false;
                 for(EditText editTextAux : quantitiesList){
                     editTextAux.setText("");
                     editTextAux.setTextColor(Color.BLACK);
@@ -237,8 +242,12 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(findViewById(R.id.main_layout),"Debes de tener al menos dos opciones",Toast.LENGTH_SHORT ).show();
             return false;
         }
-        rowsOptions.remove(rowsOptions.size()-1);
-        tableOptions.removeView(findViewById(--idSet));
+        rowsOptions.remove(--idSet);
+        quantitiesList.remove(idSet);
+        pricesList.remove(idSet);
+        signList.remove(idSet);
+        spinnerList.remove(idSet);
+        tableOptions.removeView(findViewById(idSet));
         return true;
     }
 
@@ -248,14 +257,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    protected int getBestOption(){
-        int bestOptionIndex = -1;
+    protected List<Integer> getBestOption(){
+        List<Integer> bestOptionIndex = new ArrayList<Integer>();
         double priceRelation;
         double bestOption = -1;
-        boolean haveEmpy = false;
+        haveEmpy = false;
         Spinner spinnerAuxType = findViewById(R.id.spinnerType);
         String selectedType = (String)(spinnerAuxType.getSelectedItem());
-        for (int i = 0; i< idSet-1; i++){
+        for (int i = 0; i< idSet; i++){
             EditText quantityAux = quantitiesList.get(i);
             EditText priceAux = pricesList.get(i);
             if(quantityAux.getText().toString().isEmpty()){
@@ -273,31 +282,39 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(haveEmpy){
-            return -2;
+            return null;
         }
 
 
-        for(int i = 0; i < idSet-1; i++){
+        for(int i = 0; i < idSet; i++){
             EditText quantityAux = quantitiesList.get(i);
             Spinner spinnerAux = spinnerList.get(i);
             EditText priceAux = pricesList.get(i);
             switch (selectedType){
                 case "Peso":
-                    priceRelation = Double.parseDouble(quantityAux.getText().toString()) * mapWeightsConvertion.get(spinnerAux.getSelectedItem()) / Double.parseDouble(priceAux.getText().toString());
-                    bestOptionIndex = (priceRelation>bestOption) ? i : bestOptionIndex;
+                    priceRelation = Double.parseDouble(quantityAux.getText().toString()) * mapWeightsConversion.get(spinnerAux.getSelectedItem()) / Double.parseDouble(priceAux.getText().toString());
+                    if(priceRelation==bestOption) bestOptionIndex.add(i);
+                    else if(priceRelation>bestOption){
+                        bestOptionIndex.clear();
+                        bestOptionIndex.add(i);
+                    }
                     bestOption = Math.max(bestOption,priceRelation);
                     break;
                 case "Volumen":
-                    priceRelation = Double.parseDouble(quantityAux.getText().toString()) * mapVolumesConvertion.get(spinnerAux.getSelectedItem()) / Double.parseDouble(priceAux.getText().toString());
-                    bestOptionIndex = (priceRelation>bestOption) ? i : bestOptionIndex;
+                    priceRelation = Double.parseDouble(quantityAux.getText().toString()) * mapVolumesConversion.get(spinnerAux.getSelectedItem()) / Double.parseDouble(priceAux.getText().toString());
+                    if(priceRelation==bestOption) bestOptionIndex.add(i);
+                    else if(priceRelation>bestOption){
+                        bestOptionIndex.clear();
+                        bestOptionIndex.add(i);
+                    }
                     bestOption = Math.max(bestOption,priceRelation);
                     break;
                 default:
                     priceRelation = 9999999;
-                    bestOptionIndex = 1;
+                    if(!bestOptionIndex.contains(1)) bestOptionIndex.add(1);
                     bestOption = 99999999;
             }
         }
-        return bestOptionIndex+1;
+        return bestOptionIndex;
     }
 }
